@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useRef, useState } from "react";
 
-const CONTRACT_ADDRESS = "CA COMING SOON";
+const CONTRACT_ADDRESS = "HnxncrfSvjvJA82bUFQ8BEa9jMrK2HAvP5wboW3Cpump";
 
 const sightings = [
   {
