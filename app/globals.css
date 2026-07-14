@@ -1202,3 +1202,134 @@ a:focus-visible { color: #8a1e0d; }
   }
 }
 
+
+
+/* Pointer-scrubbed Bombo 360 viewer */
+.rotate-instruction {
+  margin: 18px 0 0;
+  padding: 8px;
+  border: 1px solid #9c8e59;
+  background: #f1edc8;
+  color: #544319;
+  font: bold 10px/1.3 "Courier New", monospace;
+}
+
+.interactive-turntable {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr;
+  place-items: center;
+  min-height: 390px;
+  padding-bottom: 58px;
+  overflow: hidden;
+  cursor: ew-resize;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.interactive-turntable:active {
+  cursor: grabbing;
+}
+
+.interactive-turntable:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: -4px;
+}
+
+.interactive-turntable > img {
+  grid-area: 1 / 1;
+  width: min(88%, 310px);
+  max-height: 310px;
+  pointer-events: none;
+  transition: none;
+}
+
+.interactive-turntable > img.is-mirrored {
+  transform: scaleX(-1);
+}
+
+.rotation-preload {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rotation-preload img {
+  width: 1px;
+  height: 1px;
+}
+
+.interactive-turntable > .angle-readout {
+  top: 6px;
+  right: 6px;
+  bottom: auto;
+}
+
+.rotation-hint {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  bottom: 26px;
+  left: 0;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+  min-height: 31px;
+  border-top: 1px solid var(--line);
+  background: rgba(255,254,245,.92);
+  color: var(--green);
+  font: bold 9px/1 "Courier New", monospace;
+  letter-spacing: .8px;
+  pointer-events: none;
+}
+
+.rotation-hint i {
+  color: var(--rust);
+  font: normal 18px/1 Arial, Helvetica, sans-serif;
+}
+
+.rotation-track {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  min-height: 27px;
+  border-top: 1px solid #a5a99f;
+  background: #e4e8df;
+  pointer-events: none;
+}
+
+.rotation-track i {
+  width: 6px;
+  height: 6px;
+  border: 1px solid #526255;
+  border-radius: 50%;
+  background: #fffef5;
+}
+
+.rotation-track i.active {
+  border-color: var(--rust);
+  background: var(--rust);
+  box-shadow: 0 0 0 2px #e1c8bb;
+}
+
+@media (max-width: 620px) {
+  .interactive-turntable {
+    min-height: 370px;
+  }
+
+  .interactive-turntable > img {
+    width: min(82%, 285px);
+  }
+}
+

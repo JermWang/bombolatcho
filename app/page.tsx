@@ -86,12 +86,23 @@ const reports = [
   },
 ];
 
-const angles = ["0", "30", "60", "90", "120", "180"];
+const rotationFrames = [
+  { file: "0", angle: 0, mirrored: false },
+  { file: "30", angle: 30, mirrored: false },
+  { file: "60", angle: 60, mirrored: false },
+  { file: "90", angle: 90, mirrored: false },
+  { file: "120", angle: 120, mirrored: false },
+  { file: "180", angle: 180, mirrored: false },
+  { file: "120", angle: 240, mirrored: true },
+  { file: "90", angle: 270, mirrored: true },
+  { file: "60", angle: 300, mirrored: true },
+  { file: "30", angle: 330, mirrored: true },
+];
 
 export default function Home() {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
   const [query, setQuery] = useState("");
-  const [activeAngle, setActiveAngle] = useState("0");
+  const [rotationIndex, setRotationIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -105,6 +116,20 @@ export default function Home() {
         .includes(needle),
     );
   }, [query]);
+
+  const currentFrame = rotationFrames[rotationIndex];
+
+  function updateRotation(clientX: number, element: HTMLDivElement) {
+    const bounds = element.getBoundingClientRect();
+    const progress = Math.min(1, Math.max(0, (clientX - bounds.left) / bounds.width));
+    setRotationIndex(Math.round(progress * (rotationFrames.length - 1)));
+  }
+
+  function stepRotation(direction: number) {
+    setRotationIndex((current) =>
+      (current + direction + rotationFrames.length) % rotationFrames.length,
+    );
+  }
 
   async function copyContract() {
     try {
@@ -326,29 +351,75 @@ export default function Home() {
           <h2>Known morphology</h2>
           <ul>
             <li>Estimated height: 2.5–3.5 ft</li>
-            <li>Dense brown or blue-gray coat</li>
-            <li>Wide moustache-like muzzle</li>
-            <li>Upright gait; very fast movement</li>
+            <li>Blue-gray dermal surface</li>
+            <li>Pink bill-like mouth</li>
+            <li>Black eyes and three-toed feet</li>
           </ul>
+          <p className="rotate-instruction">Move your cursor left ↔ right across Bombo.</p>
         </div>
-        <div className="turntable">
+        <div
+          className="turntable interactive-turntable"
+          role="slider"
+          tabIndex={0}
+          aria-label="Interactive 360 degree view of Bombo Latcho"
+          aria-valuemin={0}
+          aria-valuemax={360}
+          aria-valuenow={currentFrame.angle}
+          aria-valuetext={currentFrame.angle + " degree view"}
+          onPointerDown={(event) => {
+            event.currentTarget.setPointerCapture(event.pointerId);
+            updateRotation(event.clientX, event.currentTarget);
+          }}
+          onPointerMove={(event) => {
+            if (
+              event.pointerType === "mouse" ||
+              event.currentTarget.hasPointerCapture(event.pointerId)
+            ) {
+              updateRotation(event.clientX, event.currentTarget);
+            }
+          }}
+          onPointerUp={(event) => {
+            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+              event.currentTarget.releasePointerCapture(event.pointerId);
+            }
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowRight") {
+              event.preventDefault();
+              stepRotation(1);
+            }
+            if (event.key === "ArrowLeft") {
+              event.preventDefault();
+              stepRotation(-1);
+            }
+          }}
+        >
+          <div className="rotation-preload" aria-hidden="true">
+            {rotationFrames.map((frame, index) => (
+              <img
+                src={"/content/SPRITE%20SHEET%20ANGLES/sprite%20angles/" + frame.file + ".png"}
+                alt=""
+                key={frame.angle + "-" + index}
+              />
+            ))}
+          </div>
           <img
-            src={"/content/SPRITE%20SHEET%20ANGLES/sprite%20angles/" + activeAngle + ".png"}
-            alt={"Bombo Latcho identification view at " + activeAngle + " degrees"}
+            className={currentFrame.mirrored ? "is-mirrored" : ""}
+            src={"/content/SPRITE%20SHEET%20ANGLES/sprite%20angles/" + currentFrame.file + ".png"}
+            alt={"Bombo Latcho identification view at " + currentFrame.angle + " degrees"}
             width="500"
             height="500"
+            draggable={false}
           />
-          <span>{activeAngle}° VIEW</span>
-          <div className="angle-buttons" aria-label="Choose identification angle">
-            {angles.map((angle) => (
-              <button
-                type="button"
-                className={activeAngle === angle ? "active" : ""}
-                onClick={() => setActiveAngle(angle)}
-                key={angle}
-              >
-                {angle}°
-              </button>
+          <span className="angle-readout">{currentFrame.angle}° / 360°</span>
+          <div className="rotation-hint" aria-hidden="true">
+            <i>←</i>
+            <span>MOVE TO ROTATE</span>
+            <i>→</i>
+          </div>
+          <div className="rotation-track" aria-hidden="true">
+            {rotationFrames.map((frame, index) => (
+              <i className={rotationIndex === index ? "active" : ""} key={frame.angle} />
             ))}
           </div>
         </div>
@@ -384,4 +455,5 @@ export default function Home() {
     </main>
   );
 }
+
 
